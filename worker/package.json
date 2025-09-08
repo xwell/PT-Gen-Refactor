@@ -1,0 +1,22 @@
+{
+  "name": "pt-gen-refactor",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker for PT-Gen Refactor",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy"
+  },
+  "keywords": [
+    "cloudflare",
+    "worker"
+  ],
+  "author": "PT-Gen Team",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.33.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.1.2"
+  }
+}

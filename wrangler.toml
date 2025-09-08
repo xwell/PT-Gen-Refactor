@@ -1,0 +1,13 @@
+name = "pt-gen-refactor"
+main = "worker/index.js"
+compatibility_date = "2025-08-27"
+
+[assets]
+directory = "./frontend/dist"
+binding = "ASSETS"
+
+[vars]
+AUTHOR = "Hares"
+TMDB_API_KEY = ""
+#DOUBAN_COOKIE = ''
+#API_KEY = ""

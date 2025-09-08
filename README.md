@@ -1,0 +1,224 @@
+<p align="center">
+  <img src="logo.png" alt="PT-Gen Logo" width="200">
+</p>
+
+![License](https://img.shields.io/github/license/rabbitwit/PT-Gen-Refactor)
+![GitHub top language](https://img.shields.io/github/languages/top/rabbitwit/PT-Gen-Refactor)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/rabbitwit/PT-Gen-Refactor)
+
+## 关于PT-Gen-Refactor
+
+这是一个基于 Cloudflare Worker 和 React 的应用程序，用于生成 PT (Private Tracker) 资源描述。支持从多个平台（如豆瓣、IMDb、TMDB、Bangumi、Melon、Steam等）获取媒体信息，并生成标准的 PT 描述格式。
+
+## 支持的平台
+
+| 平台 | 类型 | 需要API密钥 | 备注 |
+|------|------|------------|------|
+| 豆瓣 (Douban) | 电影、电视剧 | 否 | 可选Cookie以获取更多信息 |
+| IMDb | 电影、电视剧 | 否 | - |
+| TMDB | 电影、电视剧 | 是 | 需要在环境变量中配置API密钥 |
+| Bangumi | 动画 | 否 | - |
+| Melon | 音乐 | 否 | 韩国音乐平台 |
+| Steam | 游戏 | 否 | - |
+
+## DEMO预览
+
+[![Demo](https://img.shields.io/badge/Demo-Click%20Here-blue?style=for-the-badge)](https://pt-gen.hares.dpdns.org)
+
+## 功能特性
+
+- 支持从多个平台获取媒体信息：
+  - 豆瓣 (Douban)
+  - IMDb (Internet Movie Database)
+  - TMDB (The Movie Database)
+  - Bangumi (番组计划)
+  - Melon (韩国音乐平台)
+  - Steam (游戏平台)
+- 自动生成标准 PT 描述格式
+- 响应式 React 前端界面
+- 基于 Cloudflare Worker 的后端服务
+- 支持多种媒体类型（电影、电视剧、音乐、游戏等）
+- 智能搜索功能（根据关键词语言自动选择搜索平台）
+- 请求频率限制和恶意请求防护
+
+## 环境要求
+
+- Node.js (推荐版本 16+)
+- npm 或 yarn
+
+## 安装与设置
+
+### 1. 克隆项目
+
+```bash
+git clone https://github.com/rabbitwit/PT-Gen-Refactor.git
+cd new-pt-gen
+```
+
+### 2. 安装依赖
+
+```bash
+# 安装根目录依赖
+npm install
+
+# 安装 Worker 依赖
+cd worker
+npm install
+cd ..
+
+# 安装前端依赖 (如不需要前端界面，请忽略此步骤)
+cd frontend
+npm install
+cd ..
+```
+
+## 开发环境
+
+### 启动开发服务器
+
+1. 启动 Cloudflare Worker:
+   ```bash
+   npm run dev
+   ```
+   默认运行在 http://localhost:8787
+
+2. 启动 React 开发服务器:
+   ```bash
+   npm run dev:frontend
+   ```
+   默认运行在 http://localhost:5173
+
+### 项目脚本
+
+- `npm run dev` - 启动 Worker 开发服务器
+- `npm run dev:frontend` - 启动前端开发服务器
+- `npm run deploy` - 部署 Worker 到 Cloudflare
+- `npm run install:all` - 一次性安装所有依赖
+
+## 部署
+
+### 1. 配置 Cloudflare
+
+1. 注册或登录 [Cloudflare](https://www.cloudflare.com/) 账户
+2. 获取 Cloudflare API Token（用于部署 Worker）
+3. 安装 Wrangler CLI：
+   ```bash
+   npm install -g wrangler
+   ```
+4. 登录 Wrangler：
+   ```bash
+   npx wrangler login
+   ```
+
+### 2. 配置环境变量
+
+编辑根目录下的 `wrangler.toml` 文件，更新以下配置：
+```toml
+name = "pt-gen-refactor"  # Worker 名称，可以修改为你自己的名称
+
+# 静态资源绑定 (如不需要前端界面，请使用# 注释)
+[assets]
+directory = "./frontend/dist"
+binding = "ASSETS"
+
+[vars]
+AUTHOR = "your_author"
+# TMDB API密钥（如果需要使用TMDB功能）
+TMDB_API_KEY = "your_tmdb_api_key"
+# 豆瓣Cookie（可选，用于获取更多信息）
+DOUBAN_COOKIE = "your_douban_cookie"
+```
+
+### 3. 部署方式
+
+#### 方式一：前后端一起部署到 Cloudflare Worker（推荐）
+
+这种方式将前端静态文件和后端 API 都部署到同一个 Worker 中，避免跨域问题。
+
+1. 构建前端应用：
+   ```bash
+   cd frontend
+   npm run build
+   cd ..
+   ```
+
+2. 部署到 Cloudflare Worker：
+   ```bash
+   npm run deploy
+   ```
+   
+   或者直接使用 Wrangler 命令：
+   ```bash
+   cd worker
+   npx wrangler deploy
+   cd ..
+   ```
+
+部署成功后，会输出类似以下的信息：
+```
+Uploaded pt-gen-refactor (1.2 seconds)
+Published pt-gen-refactor (0.3 seconds)
+  https://pt-gen-refactor.your-subdomain.workers.dev
+```
+
+#### 方式二：只部署后端到 Cloudflare Worker
+
+这种方式将后端 API 部署到 Cloudflare Worker。
+
+1. 构建后端应用：
+  ```bash
+  cd worker
+  npx wrangler deploy
+  cd ..
+  ```
+
+部署成功后，会输出类似以下的信息：
+```
+Uploaded pt-gen-refactor (1.2 seconds)
+Published pt-gen-refactor (0.3 seconds)
+  https://pt-gen-refactor.your-subdomain.workers.dev
+```
+
+## API 接口
+
+### URL 参数方式（只部署后端）
+直接解析特定平台的资源链接:
+- `/?url=https://movie.douban.com/subject/123456/` - 解析豆瓣资源
+- `/?url=https://www.imdb.com/title/tt123456/` - 解析 IMDb 资源
+- `/?url=https://www.themoviedb.org/movie/123456` - 解析 TMDB 资源
+
+### URL 参数方式（前后端一起部署,后端的API则是以下的）
+- `/api?url=https://movie.douban.com/subject/123456/` - 解析豆瓣资源
+- `/api?url=https://www.imdb.com/title/tt123456/` - 解析 IMDb 资源
+- `/api?url=https://www.themoviedb.org/movie/123456` - 解析 TMDB 资源
+
+## 使用说明
+
+1. **豆瓣功能限制**：如果不提供豆瓣 Cookie，将无法获取一些需要登录才能查看的条目信息。
+
+2. **反爬虫机制**：短时间不要重复请求多次豆瓣，否则会触发豆瓣的反爬虫机制。
+
+3. **TMDB 功能限制**：需要提供 TMDB API 密钥，否则将无法获取 TMDB 资源信息。
+
+4. **搜索功能限制**：如要使用中文搜索功能,必须要配置TMDB API KEY,如果没有配置的话,则只能使用英文进行搜索(调用IMDB)。
+
+4. 启动应用后，访问前端地址 (默认 https://pt-gen-refactor.your-subdomain.workers.dev)
+5. 输入媒体资源的链接或 ID
+6. 系统将自动获取并生成标准 PT 描述
+7. 复制生成的描述用于 PT 站点发布
+
+## 感谢
+
+- 感谢[Rhilip/pt-gen-cfworker](https://github.com/Rhilip/pt-gen-cfworker)提供部分逻辑参考。
+
+## 许可证
+
+本项目采用 MIT 许可证。详情请查看 [LICENSE](LICENSE) 文件。
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=rabbitwit/new-pt-gen&type=Date)](https://star-history.com/#rabbitwit/new-pt-gen&Date)
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request 来改进项目。
