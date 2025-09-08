@@ -2,9 +2,12 @@
   <img src="logo.png" alt="PT-Gen Logo" width="200">
 </p>
 
-![License](https://img.shields.io/github/license/rabbitwit/PT-Gen-Refactor)
-![GitHub top language](https://img.shields.io/github/languages/top/rabbitwit/PT-Gen-Refactor)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/rabbitwit/PT-Gen-Refactor)
+<p align="center">
+  <img src="https://img.shields.io/github/license/rabbitwit/PT-Gen-Refactor" alt="License">
+  <img src="https://img.shields.io/github/languages/top/rabbitwit/PT-Gen-Refactor" alt="GitHub top language">
+  <img src="https://img.shields.io/github/commit-activity/m/rabbitwit/PT-Gen-Refactor" alt="GitHub commit activity">
+  <img src="https://img.shields.io/github/search/rabbitwit/PT-Gen-Refactor/used" alt="Used">
+</p>
 
 ## 关于PT-Gen-Refactor
 
@@ -23,7 +26,9 @@
 
 ## DEMO预览
 
-[![Demo](https://img.shields.io/badge/Demo-Click%20Here-blue?style=for-the-badge)](https://pt-gen.hares.dpdns.org)
+<a href="https://pt-gen.hares.dpdns.org" target="_blank">
+  <img src="https://img.shields.io/badge/Demo-Click%20Here-blue?style=for-the-badge" alt="Demo">
+</a>
 
 ## 功能特性
 
@@ -130,6 +135,17 @@ DOUBAN_COOKIE = "your_douban_cookie"
 # 安全API密钥（可选）
 API_KEY = "your_api_key"
 ```
+
+下表列出了所有可用的环境变量及其说明：
+
+| 环境变量 | 是否必需 | 默认值 | 说明 |
+|---------|---------|--------|------|
+| `AUTHOR` | 否 | - | 作者信息，用于标识资源描述的生成者 |
+| `TMDB_API_KEY` | 否* | - | TMDB API 密钥，如果需要使用 TMDB 功能则必需 |
+| `DOUBAN_COOKIE` | 否 | - | 豆瓣 Cookie，用于获取更多豆瓣信息（可选） |
+| `API_KEY` | 否 | - | 安全 API 密钥，用于保护 API 接口（可选） |
+
+> *注意：如果要使用中文搜索功能，必须配置 TMDB_API_KEY，否则只能使用英文进行搜索（调用 IMDb）。
 
 ### 3. 部署方式
 
