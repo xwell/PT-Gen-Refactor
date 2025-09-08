@@ -196,6 +196,15 @@ Published pt-gen-refactor (0.3 seconds)
   https://pt-gen-refactor.your-subdomain.workers.dev
 ```
 
+#### 方式三：使用预构建的 bundle.js 文件（无需本地构建环境）
+
+对于没有 Node.js 构建环境的用户，可以使用我们预构建的 bundle.js 文件。这个文件通过 GitHub Actions 自动构建并推送到 `build` 分支。
+
+1. 从 [build 分支](https://github.com/rabbitwit/PT-Gen-Refactor/tree/build) 下载 `bundle.js` 文件
+2. 重命名为 `index.js`
+3. 将该文件直接上传到 Cloudflare Worker 控制台，或直接复制代码到 Cloudflare Worker 控制台。
+4. 在变量和机密的设置中添加所需的环境变量。
+
 ## API 接口
 
 ### URL 参数方式（只部署后端）
