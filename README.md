@@ -189,7 +189,7 @@ bucket_name = "pt-gen-cache"
 
 # D1 数据库配置（可选，选择一种缓存方式即可）
 [[d1_databases]]
-binding = "D1_CACHE"
+binding = "DB"
 database_name = "pt-gen-cache"
 database_id = "your_database_id"
 ```
