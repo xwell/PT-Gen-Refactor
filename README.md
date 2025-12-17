@@ -23,12 +23,12 @@
 | Melon | 音乐 | 否 | 韩国音乐平台 |
 | Steam | 游戏 | 否 | - |
 | 红果短剧 (HongGuo) | 短剧 | 否 | 支持WEB端和APP的链接 |
-| QQ 音乐 | 音乐 | 是 | 支持QQ音乐WEB的专辑链接 |
+| QQ 音乐 | 音乐 | 否 | 支持QQ音乐WEB的专辑链接(必须提供Cookie) |
 
 ## DEMO预览
 
 <a href="https://pt-gen.hares.dpdns.org" target="_blank">
-  <img src="https://img1.pixhost.to/images/10944/671640922_logo.png" alt="pt-gen-logo" width="200" height="200">
+  <img src="https://img.shields.io/badge/Demo-Click%20Here-blue?style=for-the-badge" alt="Demo">
 </a>
 
 ## 功能特性
