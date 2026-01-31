@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 function App() {
@@ -10,6 +10,19 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
+
+  // API Key 相关状态
+  const [apiKey, setApiKey] = useState("");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
+
+  // 初始化时从 localStorage 读取 API Key
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem("API_KEY");
+    if (savedApiKey && savedApiKey !== "optional") {
+      setApiKey(savedApiKey);
+    }
+  }, []);
 
   function getUrlParameter(url, param) {
     try {
@@ -27,13 +40,19 @@ function App() {
   }
 
   function buildApiUrl(input) {
+    let baseUrl;
     if (/^https?:\/\/.+/.test(input)) {
-      return `/api?url=${encodeURIComponent(input)}`;
+      baseUrl = `/api?url=${encodeURIComponent(input)}`;
     } else if (isChineseText(input)) {
-      return `/api?source=douban&query=${encodeURIComponent(input)}`;
+      baseUrl = `/api?source=douban&query=${encodeURIComponent(input)}`;
     } else {
-      return `/api?source=imdb&query=${encodeURIComponent(input)}`;
+      baseUrl = `/api?source=imdb&query=${encodeURIComponent(input)}`;
     }
+    // 添加 API Key 参数
+    if (apiKey) {
+      baseUrl += `&key=${encodeURIComponent(apiKey)}`;
+    }
+    return baseUrl;
   }
 
   function resetStates() {
@@ -187,9 +206,31 @@ function App() {
     }
   };
 
+  // 打开 API Key 设置弹窗
+  const openApiKeyModal = () => {
+    setApiKeyInput(apiKey);
+    setShowApiKeyModal(true);
+  };
+
+  // 保存 API Key
+  const saveApiKey = () => {
+    const trimmedKey = apiKeyInput.trim();
+    setApiKey(trimmedKey);
+    localStorage.setItem("API_KEY", trimmedKey);
+    setShowApiKeyModal(false);
+    setError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!url) return;
+
+    // 检查是否设置了 API Key
+    if (!apiKey) {
+      setError("请先设置 API Key 后再进行查询");
+      openApiKeyModal();
+      return;
+    }
 
     resetStates();
     setLoading(true);
@@ -455,6 +496,30 @@ function App() {
               <h1 className="text-xl font-medium text-gray-900">PT-Gen</h1>
             </div>
             <nav className="flex space-x-4">
+              {/* 设置按钮 */}
+              <button
+                onClick={openApiKeyModal}
+                className="flex items-center space-x-2 rounded-md bg-gray-100 px-3 py-2 text-sm hover:bg-gray-200"
+                title="API Key 设置"
+              >
+                <svg
+                  className="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>设置</span>
+                {apiKey && <span className="ml-1 w-2 h-2 bg-green-500 rounded-full"></span>}
+              </button>
               <a
                 href="https://github.com/rabbitwit/PT-Gen-Refactor"
                 target="_blank"
@@ -687,6 +752,40 @@ function App() {
                 />
               </svg>
               <span className="text-sm font-medium">已复制到剪贴板</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* API Key 设置弹窗 */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">API Key 设置</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              请输入您的 API Key 以继续使用查询功能。API Key 将保存在浏览器本地存储中。
+            </p>
+            <input
+              type="text"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="请输入 API Key"
+              className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2 border mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowApiKeyModal(false)}
+                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                取消
+              </button>
+              <button
+                onClick={saveApiKey}
+                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                保存
+              </button>
             </div>
           </div>
         </div>
