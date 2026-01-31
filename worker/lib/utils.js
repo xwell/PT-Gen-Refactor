@@ -1070,7 +1070,10 @@ const validateRequest = async (request, corsHeaders, env) => {
     request.headers.get("X-Internal-Request") === "true";
 
   if (env?.API_KEY && !isInternalRequest) {
-    const apiKey = url.searchParams.get("key");
+    // 支持从 query param 或 path 中提取 apikey
+    // 路径模式: /{apikey}/ 或 /api/{apikey}/
+    const pathApiKey = extractApiKeyFromPath(url.pathname);
+    const apiKey = url.searchParams.get("key") || pathApiKey;
 
     if (!apiKey) {
       // 检查是否为浏览器请求（通过 Accept 头部判断）
@@ -1719,6 +1722,49 @@ export const parseDoubanAwards = (awardsStr) => {
  * @param {Object} env - 环境变量对象，包含运行时环境配置和绑定资源
  * @returns {Promise<Response>} 返回处理后的HTTP响应对象
  */
+/**
+ * 从路径中提取 API key
+ * 支持模式: /{apikey}/ 或 /api/{apikey}/
+ * @param {string} pathname - URL 路径
+ * @returns {string|null} - 提取的 API key 或 null
+ */
+const extractApiKeyFromPath = (pathname) => {
+  // 匹配 /api/{apikey}/ 模式
+  const apiKeyMatch = pathname.match(/^\/api\/([^\/]+)\/?$/);
+  if (apiKeyMatch) {
+    return apiKeyMatch[1];
+  }
+  // 匹配 /{apikey}/ 模式（非 api 路径）
+  const rootKeyMatch = pathname.match(/^\/([^\/]+)\/?$/);
+  if (rootKeyMatch && rootKeyMatch[1] !== 'api') {
+    return rootKeyMatch[1];
+  }
+  return null;
+};
+
+/**
+ * 检查路径是否为 API 路径（支持 apikey 在路径中）
+ * @param {string} pathname - URL 路径
+ * @returns {{isApi: boolean, hasPathApiKey: boolean, pathApiKey: string|null}}
+ */
+const parseApiPath = (pathname) => {
+  // 精确匹配 / 或 /api
+  if (pathname === '/' || pathname === '/api' || pathname === '/api/') {
+    return { isApi: true, hasPathApiKey: false, pathApiKey: null };
+  }
+  // 匹配 /api/{apikey}/ 模式
+  const apiKeyMatch = pathname.match(/^\/api\/([^\/]+)\/?$/);
+  if (apiKeyMatch) {
+    return { isApi: true, hasPathApiKey: true, pathApiKey: apiKeyMatch[1] };
+  }
+  // 匹配 /{apikey}/ 模式（非 api 路径，非静态资源）
+  const rootKeyMatch = pathname.match(/^\/([^\/]+)\/?$/);
+  if (rootKeyMatch && !rootKeyMatch[1].includes('.')) {
+    return { isApi: true, hasPathApiKey: true, pathApiKey: rootKeyMatch[1] };
+  }
+  return { isApi: false, hasPathApiKey: false, pathApiKey: null };
+};
+
 export const handleRequest = async (request, env) => {
   if (request.method === "OPTIONS") {
     return _handleOptionsRequest();
@@ -1732,28 +1778,34 @@ export const handleRequest = async (request, env) => {
   const url = new URL(request.url);
   const { pathname } = url;
   const { method } = request;
-  const isApiPath = pathname === "/" || pathname === "/api";
+  
+  // 解析路径，支持 apikey 在路径中
+  const pathInfo = parseApiPath(pathname);
+  const queryApiKey = url.searchParams.get("key");
+  const pathApiKey = pathInfo.pathApiKey;
+  const hasApiKey = !!(queryApiKey || pathApiKey);
 
-  if (isApiPath) {
+  if (pathInfo.isApi) {
     if (method === "POST") {
       return await handleQueryRequest(request, env, url);
     }
 
     if (method === "GET") {
-      const apiKey = url.searchParams.get("key");
-      if (pathname === "/" && !apiKey) {
-        return handleRootRequest(env, true);
-      } else if (pathname === "/api" && !apiKey) {
-        // /api路径无key参数：返回JSON错误
-        return createErrorResponse(
-          "API key required. Access denied.",
-          401,
-          CORS_HEADERS
-        );
-      } else {
-        // 其他情况（有key或特定路径）：处理查询请求
-        return await handleQueryRequest(request, env, url);
+      // 根路径无 key：显示 HTML 页面
+      if ((pathname === "/" || pathname === "/api" || pathname === "/api/") && !hasApiKey) {
+        if (pathname === "/") {
+          return handleRootRequest(env, true);
+        } else {
+          // /api 路径无 key 参数：返回 JSON 错误
+          return createErrorResponse(
+            "API key required. Access denied.",
+            401,
+            CORS_HEADERS
+          );
+        }
       }
+      // 有 key 或 apikey 在路径中：处理查询请求
+      return await handleQueryRequest(request, env, url);
     }
   }
 

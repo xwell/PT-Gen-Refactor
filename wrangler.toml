@@ -1,27 +1,30 @@
 name = "pt-gen-refactor"
 main = "worker/index.js"
-compatibility_date = "2025-08-27"
+compatibility_date = "2026-01-31"
 
 [assets]
 directory = "./frontend/dist"
 binding = "ASSETS"
 
-# 变量配置 如需使用 vars 配置，请删除 # 符号
+# 环境变量配置
+# 注意: 敏感信息（TMDB_API_KEY、Cookie 等）应使用 Secrets，不要写在这里
+# 使用命令: npx wrangler secret put TMDB_API_KEY
 [vars]
 AUTHOR = "Hares"
-TMDB_API_KEY = ""
-#DOUBAN_COOKIE = ''
-#QQ_COOKIE = ''
-#API_KEY = ""
-#ENABLED_CACHE = "true"
+# ENABLED_CACHE = "true"
 
-# R2 存储桶配置（可选，选择一种缓存方式即可） 如需使用 R2 存储桶缓存删除参数前的 # 符号
-#[[r2_buckets]]
-#binding = "R2_BUCKET"
-#bucket_name = "pt-gen-cache"
+# R2 存储桶配置（一键部署时自动创建）
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "pt-gen-cache"
 
-# D1 数据库配置（可选，选择一种缓存方式即可） 如需使用 D1 数据库缓存删除参数前的 # 符号
-#[[d1_databases]]
-#binding = "DB"
-#database_name = "pt-gen-cache"
-#database_id = ""
+# D1 数据库配置（可选，选择一种缓存方式即可）
+# 部署后在 Cloudflare Dashboard 中手动配置
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "pt-gen-cache"
+# database_id = ""
+
+# 日志配置
+[observability.logs]
+enabled = true

@@ -35,6 +35,37 @@
   <img src="https://img.shields.io/badge/Demo-Click%20Here-blue?style=for-the-badge" alt="Demo">
 </a>
 
+## 一键部署到 Cloudflare Workers（推荐）
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/rabbitwit/PT-Gen-Refactor)
+
+点击上方 **Deploy to Cloudflare** 按钮，按照提示完成部署：
+
+1. 授权 GitHub 仓库访问
+2. 连接 Cloudflare 账号
+3. 等待部署完成
+
+部署完成后，你的服务将立即可用。
+
+### 部署后配置（可选）
+
+部署成功后，你可以通过 Cloudflare Dashboard 配置以下可选项：
+
+**配置 Secrets（敏感信息）：**
+在 Workers & Pages > 你的 Worker > Settings > Variables and Secrets 中添加：
+- `TMDB_API_KEY` - TMDB API 密钥（使用中文搜索必需）
+- `DOUBAN_COOKIE` - 豆瓣 Cookie（获取更多信息可选）
+- `QQ_COOKIE` - QQ音乐 Cookie（使用QQ音乐功能必需）
+- `API_KEY` - 安全 API 密钥（保护接口可选）
+
+> **注意：** R2 存储桶 `pt-gen-cache` 会在一键部署时自动创建并绑定，无需手动配置。
+
+**配置 D1 数据库（可选，替代 R2 缓存）：**
+如需使用 D1 替代 R2 作为缓存存储：
+1. 在 D1 页面创建数据库 `pt-gen-cache`
+2. 执行建表 SQL（参考下方手动部署说明）
+3. 在 Worker Settings 中绑定 D1 数据库
+
 ## 功能特性
 
 - 支持从多个平台获取媒体信息：
@@ -277,24 +308,39 @@ Published pt-gen-refactor (0.3 seconds)
 3. 将该文件直接上传到 Cloudflare Worker 控制台，或直接复制代码到 Cloudflare Worker 控制台。
 4. 在变量和机密的设置中添加所需的环境变量。
 
-## API 接口 (所有的接口请求是"POST")
+## API 接口
+
+所有接口支持 POST 和 GET 请求方式。
 
 ### URL 参数方式（只部署后端）
+
 直接解析特定平台的资源链接:
 - `/?url=https://movie.douban.com/subject/123456/` - 解析豆瓣资源（包含演员/导演图片）
 - `/?url=https://www.imdb.com/title/tt123456/` - 解析 IMDb 资源
 - `/?url=https://www.themoviedb.org/movie/123456` - 解析 TMDB 资源
 
-### URL 参数方式（前后端一起部署,后端的API则是以下的）
+支持在路径中使用 API Key（无需在参数中拼接）：
+- `/{apikey}/?url=https://movie.douban.com/subject/123456/`
+
+### URL 参数方式（前后端一起部署）
+
+后端 API 路径：
 - `/api?url=https://movie.douban.com/subject/123456/` - 解析豆瓣资源（包含演员/导演图片）
 - `/api?url=https://www.imdb.com/title/tt123456/` - 解析 IMDb 资源
 - `/api?url=https://www.themoviedb.org/movie/123456` - 解析 TMDB 资源
 
+支持在路径中使用 API Key：
+- `/api/{apikey}/?url=https://movie.douban.com/subject/123456/`
+
 ### Params 参数方式
+
 - `/api?source=douban&sid=123456` - 解析豆瓣资源（包含演员/导演图片）
 - `/api?source=imdb&sid=tt123456` - 解析 IMDb 资源
-- `/api?source=tmdb&sid=123456&type=movie`  - 解析 TMDB 电影资源（使用 type 参数）
-- `/api?source=tmdb&sid=123456&type=tv`  - 解析 TMDB 电视剧资源（使用 type 参数）
+- `/api?source=tmdb&sid=123456&type=movie` - 解析 TMDB 电影资源（使用 type 参数）
+- `/api?source=tmdb&sid=123456&type=tv` - 解析 TMDB 电视剧资源（使用 type 参数）
+
+支持在路径中使用 API Key：
+- `/api/{apikey}/?source=tmdb&sid=123456&type=movie`
 
 ## 新增功能亮点
 
