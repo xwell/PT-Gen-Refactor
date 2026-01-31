@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "cd worker && npx wrangler dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "deploy": "cd worker && npx wrangler deploy"
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "install:worker": "cd worker && npm install",
+    "install:all": "npm install && npm run install:worker && cd frontend && npm install",
+    "deploy": "npm run install:worker && npm run build:frontend && npx wrangler deploy"
   },
   "keywords": [
     "cloudflare",
