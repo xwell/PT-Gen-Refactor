@@ -11,7 +11,7 @@ yarn.lock
 dist/
 build/
 .out/
-# frontend/dist/  # Commented out to support one-click deployment
+frontend/dist/
 
 # Environment variables
 .env

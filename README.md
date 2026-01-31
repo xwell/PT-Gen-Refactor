@@ -37,7 +37,7 @@
 
 ## 一键部署到 Cloudflare Workers（推荐）
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/rabbitwit/PT-Gen-Refactor)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/xwell/PT-Gen-Refactor)
 
 点击上方 **Deploy to Cloudflare** 按钮，按照提示完成部署：
 
